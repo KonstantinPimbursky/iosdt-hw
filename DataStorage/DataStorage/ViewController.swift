@@ -88,7 +88,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                                                                    options: [.skipsHiddenFiles])
             count = contents.count
         } catch {
-            print("Ошибка полчения контента")
+            print("Ошибка получения контента")
         }
         return count
     }
@@ -107,6 +107,5 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             return tableViewCell
         }
     }
-    
     
 }
