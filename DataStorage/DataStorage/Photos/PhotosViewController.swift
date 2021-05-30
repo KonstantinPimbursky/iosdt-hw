@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class PhotosViewController: UIViewController {
     
     private let tableView: UITableView = {
         let table = UITableView()
@@ -16,16 +16,19 @@ class ViewController: UIViewController {
     }()
     
     private let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    
+    private let userDefaults = UserDefaults.standard
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .white
         navigationItem.title = "Фотографии"
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add,
                                                             target: self,
                                                             action: #selector(addPhoto))
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(TableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(PhotosTableViewCell.self, forCellReuseIdentifier: "cell")
         view.addSubview(tableView)
         setupViews()
     }
@@ -48,9 +51,13 @@ class ViewController: UIViewController {
         
         NSLayoutConstraint.activate(contraints)
     }
+    
+    func reloadTableView() {
+        tableView.reloadData()
+    }
 }
 
-extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension PhotosViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
@@ -78,7 +85,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
     
 }
 
-extension ViewController: UITableViewDelegate, UITableViewDataSource {
+extension PhotosViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var count = 0
@@ -94,11 +101,19 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let tableViewCell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! TableViewCell
+        let tableViewCell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! PhotosTableViewCell
         do {
-            let contents = try FileManager.default.contentsOfDirectory(at: documentsDirectory,
+            var contents = try FileManager.default.contentsOfDirectory(at: documentsDirectory,
                                                                    includingPropertiesForKeys: nil,
                                                                    options: [.skipsHiddenFiles])
+            switch userDefaults.string(forKey: "sortedOrder") {
+            case "alphabet_order":
+                contents.sort(by: {$0.absoluteString < $1.absoluteString})
+            case "reverce_alphabet_order":
+                contents.sort(by: {$0.absoluteString > $1.absoluteString})
+            default:
+                break
+            }
             let image = UIImage(contentsOfFile: contents[indexPath.item].path)
             tableViewCell.photoImage = image
             return tableViewCell
