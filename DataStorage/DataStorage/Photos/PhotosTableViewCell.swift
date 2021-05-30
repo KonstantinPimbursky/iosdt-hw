@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TableViewCell: UITableViewCell {
+class PhotosTableViewCell: UITableViewCell {
     
     var photoImage: UIImage? {
         didSet {
